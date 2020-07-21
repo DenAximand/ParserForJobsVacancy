@@ -5,12 +5,20 @@ include 'simple_html_dom.php';
 
 class JobsList
 {
+    private $urlForDou;
+    private $urlForWork;
     private $vacancyLinks = [];
     private $vacancyContent = [];
 
-    private function getLinksFromDou()
+    public function __construct($urlDou, $urlWork)
     {
-        $html = file_get_html('https://jobs.dou.ua/vacancies/?city=%D0%94%D0%BD%D0%B5%D0%BF%D1%80&category=PHP&exp=0-1');
+        $this->urlForDou = $urlDou;
+        $this->urlForWork = $urlWork;
+    }
+
+    public function getLinksFromDou()
+    {
+        $html = file_get_html($this->urlForDou);
         if($html->innertext!='' and count($html->find('a[class=vt]')))
         {
            foreach ($html->find('a[class=vt]') as $item){
@@ -24,7 +32,7 @@ class JobsList
 
     private function getLinksFromWork()
     {
-        $html = file_get_html('https://www.work.ua/ru/jobs-dnipro-php+developer/?advs=1&experience=1');
+        $html = file_get_html($this->urlForWork);
         if($html->innertext!='' and count($html->find('div[class=card card-hover card-visited wordwrap job-link] h2 a')))
         {
             foreach ($html->find('div[class=card card-hover card-visited wordwrap job-link] h2 a') as $item){

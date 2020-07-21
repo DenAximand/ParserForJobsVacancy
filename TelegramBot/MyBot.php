@@ -6,21 +6,26 @@ namespace TelegramBot;
 
 class MyBot
 {
-    private $apiToken = '1297621518:AAHEgBZcv4ieGTPK-XQPSpqX8rXdnlGGb4Q';
-    private $Url = 'https://api.telegram.org/bot';
+    private $apiToken;
+    private $url;
+    private $chatID;
 
-
-    const __CHAT_ID__ = '705522066';
+    public function __construct($url,$api,$id)
+    {
+        $this->apiToken = $api;
+        $this->url = $url;
+        $this->chatID = $id;
+    }
 
     public function getUpdates(){
-        $linkForGetUpdates = $this->Url.$this->apiToken.'/getUpdates';
+        $linkForGetUpdates = $this->url.$this->apiToken.'/getUpdates';
 
         $updateArr = file_get_contents($linkForGetUpdates);
         print_r($updateArr);
     }
 
     public function sendMessage($text){
-        $url = $this->Url.$this->apiToken.'/sendMessage?chat_id='.self::__CHAT_ID__.'&text='.urlencode($text);
+        $url = $this->url.$this->apiToken.'/sendMessage?chat_id='.$this->chatID.'&text='.urlencode($text);
         $curl = curl_init($url);
 
         curl_setopt($curl,CURLOPT_POST, 1);
