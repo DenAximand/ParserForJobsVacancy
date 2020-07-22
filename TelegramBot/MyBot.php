@@ -17,24 +17,26 @@ class MyBot
         $this->chatID = $id;
     }
 
-    public function getUpdates(){
-        $linkForGetUpdates = $this->url.$this->apiToken.'/getUpdates';
-
-        $updateArr = file_get_contents($linkForGetUpdates);
-        print_r($updateArr);
+    public function getUpdates()
+    {
+        $data = file_get_contents($this->url . "/getUpdates");
+        $json = json_decode($data);
+//        print_r($json->result);
+        return end($json->result);
     }
 
-    public function sendMessage($text){
-        $url = $this->url.$this->apiToken.'/sendMessage?chat_id='.$this->chatID.'&text='.urlencode($text);
-        $curl = curl_init($url);
-
-        curl_setopt($curl,CURLOPT_POST, 1);
-        curl_setopt($curl,CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($curl,CURLOPT_HEADER, 0);
-        curl_exec($curl);
-        curl_close($curl);
+    public function sendMessage($message)
+    {
+        $data = array('chat_id' => $this->chatID, 'text' => $message);
+        $options = array(
+            'http' => array(
+                'method' => 'POST',
+                'content' => json_encode($data),
+                'header' =>  "Content-Type: application/json\r\n" .
+                    "Accept: application/json\r\n"));
+        $context = stream_context_create($options);
+        $result = file_get_contents($this->url .$this->apiToken. "/sendMessage", 0, $context);
+        return json_decode($result);
     }
 
 }
