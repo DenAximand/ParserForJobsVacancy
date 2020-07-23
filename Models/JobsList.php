@@ -9,14 +9,16 @@ class JobsList
     private $urlForWork;
     private $vacancyLinks = [];
     private $vacancyContent = [];
+    protected $allVacancies = [];
 
     public function __construct($urlDou, $urlWork)
     {
         $this->urlForDou = $urlDou;
         $this->urlForWork = $urlWork;
+
     }
 
-    public function getLinksFromDou()
+    private function getLinksFromDou()
     {
         $html = file_get_html($this->urlForDou);
         if($html->innertext!='' and count($html->find('a[class=vt]')))
@@ -25,7 +27,6 @@ class JobsList
                $this->vacancyLinks[] = $item->href;
            }
         }
-
         $html->clear();
         unset($html);
     }
@@ -48,7 +49,6 @@ class JobsList
     {
         $this->getLinksFromDou();
         foreach ($this->vacancyLinks as $link){
-            global $allVacancies;
             $vacancyHTML = file_get_html($link);
             if($vacancyHTML->innertext!='' and count($vacancyHTML->find('h1[class=g-h2], div[class=sh-info] span[class=place], h3[class=g-h3], div[class=text]')))
             {
@@ -57,7 +57,7 @@ class JobsList
                 }
             }
             $this->vacancyContent[] = $link;
-            $allVacancies[] = stripcslashes(implode($this->vacancyContent));
+            $this->allVacancies[] = stripcslashes(implode($this->vacancyContent));
             unset($this->vacancyContent);
             $vacancyHTML->clear();
             unset($vacancyHTML);
@@ -69,7 +69,6 @@ class JobsList
     {
         $this->getLinksFromWork();
         foreach ($this->vacancyLinks as $link){
-            global $allVacancies;
             $vacancyHTML = file_get_html('https://www.work.ua'.$link);
             if($vacancyHTML->innertext!='' and count($vacancyHTML->find('p[class=cut-bottom-print] span[class=text-muted]')))
             {
@@ -78,7 +77,7 @@ class JobsList
                 }
             }
             $this->vacancyContent[] = 'https://www.work.ua'.$link;
-            $allVacancies[] = str_replace('&nbsp;',' ',stripcslashes(implode($this->vacancyContent)));
+            $this->allVacancies[] = str_replace('&nbsp;',' ',stripcslashes(implode($this->vacancyContent)));
             unset($this->vacancyContent);
             $vacancyHTML->clear();
             unset($vacancyHTML);
@@ -86,7 +85,7 @@ class JobsList
         }
     }
 
-    public function sendMessageContentForBot()
+    protected function pushVacanciesTextToSharedArr()
     {
         $this->getContentFromLinksDou();
         $this->getContentFromLinksWork();

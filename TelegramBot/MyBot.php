@@ -4,28 +4,46 @@
 namespace TelegramBot;
 
 
-class MyBot
+use Models\JobsList;
+
+class MyBot extends JobsList
 {
     private $apiToken;
     private $url;
     private $chatID;
+    private $msgDate = 0;
 
-    public function __construct($url,$api,$id)
+    public function __construct($urlDou, $urlWork, $url,$api,$id)
     {
+        parent::__construct($urlDou, $urlWork);
         $this->apiToken = $api;
         $this->url = $url;
         $this->chatID = $id;
     }
 
-    public function getUpdates()
+    private function getUpdates()
     {
-        $data = file_get_contents($this->url . "/getUpdates");
+        $data = file_get_contents($this->url . $this->apiToken . "/getUpdates");
         $json = json_decode($data);
-//        print_r($json->result);
         return end($json->result);
     }
 
-    public function sendMessage($message)
+    public function run()
+    {
+        $lastMessageArr = $this->getUpdates();
+        $textLastMsg = $lastMessageArr->message->text;
+        if($textLastMsg == 'giveJobs' and $this->msgDate != $lastMessageArr->message->date){
+            $this->msgDate = $lastMessageArr->message->date;
+            parent::pushVacanciesTextToSharedArr();
+            foreach ($this->allVacancies as $item){
+                $text = $item;
+                $this->sendMessage($text);
+            }
+        }
+        unset($this->allVacancies);
+    }
+
+    private function sendMessage($message)
     {
         $data = array('chat_id' => $this->chatID, 'text' => $message);
         $options = array(
