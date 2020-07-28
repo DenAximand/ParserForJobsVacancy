@@ -17,12 +17,3 @@ while(true){
     sleep(30);
     set_time_limit(120);
 }
-//for($i=0; $i<3;$i++){
-//
-//    $Bot->run();
-//    echo '<br>';
-//    print_r($Bot->allVacancies);
-//    echo '<br>';
-//}
-
-//print_r($Bot->getUpdates());
