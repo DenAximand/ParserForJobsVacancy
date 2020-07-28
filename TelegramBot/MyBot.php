@@ -11,7 +11,7 @@ class MyBot extends JobsList
     private $apiToken;
     private $url;
     private $chatID;
-    private $msgDate = 0;
+    private $msgID = 0;
 
     public function __construct($urlDou, $urlWork, $url,$api,$id)
     {
@@ -21,7 +21,7 @@ class MyBot extends JobsList
         $this->chatID = $id;
     }
 
-    private function getUpdates()
+    public function getUpdates()
     {
         $data = file_get_contents($this->url . $this->apiToken . "/getUpdates");
         $json = json_decode($data);
@@ -32,8 +32,8 @@ class MyBot extends JobsList
     {
         $lastMessageArr = $this->getUpdates();
         $textLastMsg = $lastMessageArr->message->text;
-        if($textLastMsg == 'giveJobs' and $this->msgDate != $lastMessageArr->message->date){
-            $this->msgDate = $lastMessageArr->message->date;
+        if($textLastMsg == 'giveJobs' and $this->msgID != $lastMessageArr->message->message_id){
+            $this->msgID = $lastMessageArr->message->message_id;
             parent::pushVacanciesTextToSharedArr();
             foreach ($this->allVacancies as $item){
                 $text = $item;
